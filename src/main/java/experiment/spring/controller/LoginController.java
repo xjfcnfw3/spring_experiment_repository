@@ -5,10 +5,8 @@ import experiment.spring.domain.member.LoginResponse;
 import experiment.spring.domain.member.Member;
 import experiment.spring.security.TokenProvider;
 import experiment.spring.service.LoginService;
-import java.util.Enumeration;
-import javax.servlet.http.HttpServletRequest;
+import javax.security.auth.message.AuthException;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,29 +16,29 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class LoginController {
     private final LoginService loginService;
     private final TokenProvider tokenProvider;
 
+    public LoginController(LoginService loginService, TokenProvider tokenProvider) {
+        this.loginService = loginService;
+        this.tokenProvider = tokenProvider;
+    }
+
     @PostMapping("/login")
     public Object login(@RequestBody LoginDto loginDto) {
-        Member loginMember = loginService.login(loginDto.getLoginId(), loginDto.getPassword());
-        log.info("loginMember={}", loginMember);
-        String token = tokenProvider.createToken(loginMember);
-        return LoginResponse.builder().token(token).build();
-    }
+        Member loginMember = null;
+        String refreshToken = null;
 
-    @GetMapping("/jwt-member")
-    public Object getSecretMember(@RequestBody MemberToken memberToken) {
-        String token = memberToken.getToken();
-        log.info("token={}", token);
-        return tokenProvider.getMember(token);
-    }
+        try {
+            loginMember = loginService.login(loginDto.getLoginId(), loginDto.getPassword());
+            refreshToken = tokenProvider.generateRefreshToken(loginMember.getLoginId());
+        } catch (AuthException ex) {
+            log.error("invalid login Member");
+        }
 
-    @Data
-    static class MemberToken {
-        private String token;
+        String accessToken = tokenProvider.createToken(refreshToken, loginMember);
+        return LoginResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build();
     }
 }
