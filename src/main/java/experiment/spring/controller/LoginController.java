@@ -1,14 +1,12 @@
 package experiment.spring.controller;
 
-import experiment.spring.domain.member.LoginDto;
-import experiment.spring.domain.member.LoginResponse;
+import experiment.spring.domain.member.dto.LoginDto;
+import experiment.spring.domain.member.dto.LoginResponse;
 import experiment.spring.domain.member.Member;
 import experiment.spring.security.TokenProvider;
 import experiment.spring.service.LoginService;
 import javax.security.auth.message.AuthException;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,18 +25,22 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public Object login(@RequestBody LoginDto loginDto) {
-        Member loginMember = null;
-        String refreshToken = null;
-
+    public Object login(@RequestBody LoginDto loginDto) throws AuthException {
         try {
-            loginMember = loginService.login(loginDto.getLoginId(), loginDto.getPassword());
-            refreshToken = tokenProvider.generateRefreshToken(loginMember.getLoginId());
+            return getTokens(loginDto);
         } catch (AuthException ex) {
             log.error("invalid login Member");
+            throw ex;
         }
+    }
 
-        String accessToken = tokenProvider.createToken(refreshToken, loginMember);
-        return LoginResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+    private LoginResponse getTokens(LoginDto loginDto) throws AuthException {
+        Member member = loginService.login(loginDto.getLoginId(), loginDto.getPassword());
+        String refreshToken = tokenProvider.generateRefreshToken(member.getLoginId());
+        String accessToken = tokenProvider.createToken(refreshToken, member);
+        return LoginResponse.builder()
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .build();
     }
 }

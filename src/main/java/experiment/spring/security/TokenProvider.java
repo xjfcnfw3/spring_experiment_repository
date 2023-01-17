@@ -13,9 +13,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
-import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.Optional;
 import java.util.UUID;
 import javax.security.auth.message.AuthException;
 import lombok.RequiredArgsConstructor;
@@ -52,9 +50,9 @@ public class TokenProvider {
         }
 
         return Jwts.builder()
-            .setSubject(member.getName())
+            .setSubject(member.getLoginId())
             .setIssuedAt(new Date())
-            .setExpiration(new Date(System.currentTimeMillis() + (SECOND * 20L)))
+            .setExpiration(new Date(System.currentTimeMillis() + (SECOND * 20L * 2)))
             .signWith(SignatureAlgorithm.HS256,
                 authProperties.getAuth().getTokenSecret())
             .compact();
@@ -79,7 +77,7 @@ public class TokenProvider {
         return false;
     }
 
-    public String getMemberName(String token) {
+    public String getAttribute(String token) {
         Claims claims = Jwts.parser()
             .setSigningKey(authProperties.getAuth().getTokenSecret())
             .parseClaimsJws(token)
