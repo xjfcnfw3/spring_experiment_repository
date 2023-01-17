@@ -1,4 +1,4 @@
-package experiment.spring.domain.member;
+package experiment.spring.domain.member.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
