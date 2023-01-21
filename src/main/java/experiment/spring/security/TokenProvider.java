@@ -14,6 +14,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 import javax.security.auth.message.AuthException;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +41,9 @@ public class TokenProvider {
         return refreshToken.getToken();
     }
 
-    public String createToken(String refreshToken, Member member) {
+    public String createToken(String refreshToken, String loginId) throws AuthException {
+        Member member = memberRepository.findByLoginId(loginId)
+            .orElseThrow(AuthException::new);
         String validToken = refreshTokenRepository.findById(member.getId().toString())
             .orElseThrow(() -> new JwtException("refresh token does not exist"))
             .getToken();
