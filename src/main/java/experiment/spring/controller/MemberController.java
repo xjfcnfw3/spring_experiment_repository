@@ -28,12 +28,12 @@ public class MemberController {
             .name("test member")
             .role(Role.USER)
             .build();
-        memberRepository.addMember(member);
+        memberRepository.save(member);
     }
 
     @PostMapping("/register")
     public Object register(@RequestBody Member member) {
-        Member registerMember = memberRepository.addMember(member);
+        Member registerMember = memberRepository.save(member);
         log.info("registerMember={}", registerMember);
         return registerMember;
     }

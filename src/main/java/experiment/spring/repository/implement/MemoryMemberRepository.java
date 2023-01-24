@@ -11,14 +11,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 @Slf4j
-@Repository
 public class MemoryMemberRepository implements MemberRepository {
 
     private static final Map<Long, Member> store = new ConcurrentHashMap<>();
     private static Long sequence = 0L;
 
     @Override
-    public Member addMember(Member member) {
+    public Member save(Member member) {
         member.setId(++sequence);
         log.info("member={}", member);
         store.put(member.getId(), member);
@@ -26,8 +25,8 @@ public class MemoryMemberRepository implements MemberRepository {
     }
 
     @Override
-    public Member findById(Long memberId) {
-        return store.get(memberId);
+    public Optional<Member> findById(Long memberId) {
+        return Optional.of(store.get(memberId));
     }
 
     @Override

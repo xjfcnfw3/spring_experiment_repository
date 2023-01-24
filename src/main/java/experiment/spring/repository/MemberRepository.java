@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MemberRepository {
-    Member addMember(Member member);
-    Member findById(Long memberId);
+    Member save(Member member);
+    Optional<Member> findById(Long memberId);
     Optional<Member> findByLoginId(String loginId);
     List<Member> findAll();
 }
