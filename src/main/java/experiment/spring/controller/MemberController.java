@@ -7,6 +7,7 @@ import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,12 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/members")
 public class MemberController {
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @PostConstruct
     private void init() {
         Member member = Member.builder()
             .loginId("test")
-            .password("1234")
+            .password(passwordEncoder.encode("1234"))
             .name("test member")
             .role(Role.USER)
             .build();
@@ -34,6 +36,7 @@ public class MemberController {
     @PostMapping("/register")
     public Object register(@RequestBody Member member) {
         Member registerMember = memberRepository.save(member);
+        member.setPassword(passwordEncoder.encode(member.getPassword()));
         log.info("registerMember={}", registerMember);
         return registerMember;
     }
