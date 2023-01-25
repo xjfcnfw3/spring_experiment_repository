@@ -26,7 +26,7 @@ public class LoginController {
     private final TokenProvider tokenProvider;
     private final MemberRepository memberRepository;
 
-    @PostMapping("/login")
+//    @PostMapping("/login")
     public Object login(@RequestBody LoginDto loginDto) throws AuthException {
         try {
             return getTokens(loginDto);
