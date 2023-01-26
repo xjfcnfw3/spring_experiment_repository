@@ -2,6 +2,7 @@ package experiment.spring.config.security;
 
 import experiment.spring.security.JwtFilter;
 import experiment.spring.security.LoginFilter;
+import experiment.spring.security.LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final LoginSuccessHandler loginSuccessHandler;
 
     @Bean(BeanIds.AUTHENTICATION_MANAGER)
     public AuthenticationManager authenticationManager()
@@ -40,6 +42,7 @@ public class WebSecurityConfig {
         LoginFilter loginFilter = new LoginFilter();
         loginFilter.setFilterProcessesUrl("/api/auth/login");
         loginFilter.setAuthenticationManager(authenticationManager());
+        loginFilter.setAuthenticationSuccessHandler(loginSuccessHandler);
         return loginFilter;
     }
 
