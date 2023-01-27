@@ -2,6 +2,7 @@ package experiment.spring.security;
 
 import experiment.spring.domain.member.Member;
 import experiment.spring.repository.MemberRepository;
+import experiment.spring.security.token.TokenProvider;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -10,6 +11,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,22 +23,20 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
+@RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
     private static final String AUTHORIZATION = "Authorization";
 
-    @Autowired
-    private TokenProvider tokenProvider;
-
-    @Autowired
-    private MemberRepository memberRepository;
+    private final TokenProvider tokenProvider;
+    private final MemberRepository memberRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
         String jwtAccessToken = resolveToken(request);
 
-        if (StringUtils.hasText(jwtAccessToken) && tokenProvider.validateToken(jwtAccessToken)) {
+        if (StringUtils.hasText(jwtAccessToken) && tokenProvider.validateAccessToken(jwtAccessToken)) {
             Authentication authentication = getAuthentication(jwtAccessToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
@@ -45,7 +45,7 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private Authentication getAuthentication(String token) {
-        String loginId = tokenProvider.getAttribute(token);
+        String loginId = (String) tokenProvider.getAttribute(token);
         Member member = memberRepository.findByLoginId(loginId)
             .orElseThrow(NoSuchElementException::new);
         Collection<? extends GrantedAuthority> authorities = Collections

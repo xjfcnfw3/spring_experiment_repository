@@ -2,9 +2,9 @@ package experiment.spring.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import experiment.spring.domain.member.dto.LoginResponse;
+import experiment.spring.security.token.TokenProvider;
 import java.io.IOException;
 import javax.security.auth.message.AuthException;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -28,21 +28,16 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
         try {
-            LoginResponse loginResponse = makeTokens(extractMemberLoginId(authentication));
+            LoginResponse loginResponse = makeTokens(authentication);
             new ObjectMapper().writeValue(response.getWriter(), loginResponse);
         } catch (AuthException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private LoginResponse makeTokens(String loginId) throws AuthException {
-        String refreshToken = tokenProvider.generateRefreshToken(loginId);
-        String accessToken = tokenProvider.createToken(refreshToken, loginId);
+    private LoginResponse makeTokens(Authentication authentication) throws AuthException {
+        String refreshToken = tokenProvider.generateRefreshToken(authentication);
+        String accessToken = tokenProvider.generateAccessToken(refreshToken);
         return new LoginResponse(accessToken, refreshToken);
-    }
-
-    private String extractMemberLoginId(Authentication authentication) {
-        MemberDetails details = (MemberDetails) authentication.getPrincipal();
-        return details.getUsername();
     }
 }

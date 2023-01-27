@@ -42,7 +42,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         loginId = loginId.trim();
 
-        log.debug("loginId={}, password={}", loginId, password);
+        log.info("loginId={}, password={}", loginId, password);
 
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
             loginId, password);
