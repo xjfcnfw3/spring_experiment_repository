@@ -23,13 +23,15 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
-@RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
     private static final String AUTHORIZATION = "Authorization";
 
-    private final TokenProvider tokenProvider;
-    private final MemberRepository memberRepository;
+    @Autowired
+    private TokenProvider tokenProvider;
+    @Autowired
+    private MemberRepository memberRepository;
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
