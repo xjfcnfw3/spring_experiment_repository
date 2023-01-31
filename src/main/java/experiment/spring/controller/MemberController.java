@@ -6,6 +6,7 @@ import experiment.spring.repository.MemberRepository;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
+@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/members")
@@ -33,6 +35,7 @@ public class MemberController {
         memberRepository.save(member);
     }
 
+    @PreAuthorize("isAnonymous()")
     @PostMapping("/register")
     public Object register(@RequestBody Member member) {
         Member registerMember = memberRepository.save(member);
