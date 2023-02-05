@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
-@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+//@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/members")
@@ -38,8 +38,9 @@ public class MemberController {
     @PreAuthorize("isAnonymous()")
     @PostMapping("/register")
     public Object register(@RequestBody Member member) {
-        Member registerMember = memberRepository.save(member);
         member.setPassword(passwordEncoder.encode(member.getPassword()));
+        Member registerMember = memberRepository.save(member);
+
         log.info("registerMember={}", registerMember);
         return registerMember;
     }
