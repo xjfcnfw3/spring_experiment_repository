@@ -75,7 +75,6 @@ public class WebSecurityConfig {
 
             .and()
             .authorizeRequests()
-
             .anyRequest().permitAll()
             .and()
             .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class)

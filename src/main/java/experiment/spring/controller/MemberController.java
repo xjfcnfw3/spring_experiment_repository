@@ -3,6 +3,7 @@ package experiment.spring.controller;
 import experiment.spring.domain.member.Member;
 import experiment.spring.domain.member.Role;
 import experiment.spring.repository.MemberRepository;
+import experiment.spring.security.LoginMember;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,8 +47,8 @@ public class MemberController {
     }
 
     @GetMapping
-    public Object getMember(Authentication authentication) {
-        log.info("detail = {}", authentication);
-        return authentication.getPrincipal();
+    public Object getMember(@LoginMember Member member) {
+        log.info("detail = {}", member);
+        return member;
     }
 }
