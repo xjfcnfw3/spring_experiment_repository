@@ -1,12 +1,9 @@
 package experiment.spring.security.token;
 
 import experiment.spring.config.security.AuthProperties;
-import experiment.spring.domain.member.Member;
 import experiment.spring.domain.token.RefreshToken;
-import experiment.spring.repository.MemberRepository;
 import experiment.spring.repository.RefreshTokenRepository;
 import experiment.spring.security.MemberDetails;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -16,16 +13,15 @@ import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import java.util.Date;
 import java.util.UUID;
-import javax.security.auth.message.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 @Slf4j
-//@Component
+@Component
 @RequiredArgsConstructor
-public class TokenProviderImp implements TokenProvider {
+public class UUIDTokenProvider implements TokenProvider{
 
     private static final int SECOND = 1000;
     private static final int MINUTE = SECOND * 60;
@@ -37,39 +33,31 @@ public class TokenProviderImp implements TokenProvider {
     public String generateRefreshToken(Authentication authentication) {
         MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
         String loginId = memberDetails.getUsername();
-        RefreshToken refreshToken = new RefreshToken(loginId, UUID.randomUUID().toString());
-        refreshTokenRepository.save(refreshToken);
+        String uuid = UUID.randomUUID().toString();
+        refreshTokenRepository.save(new RefreshToken(uuid, loginId));
         return Jwts.builder()
-            .setSubject(refreshToken.getLoginId())
+            .setSubject(uuid)
             .setIssuedAt(new Date())
-            .setExpiration(new Date(System.currentTimeMillis() + (SECOND * 60L)))
-            .signWith(SignatureAlgorithm.HS256,
-                authProperties.getAuth().getTokenSecret())
+            .setExpiration(new Date(System.currentTimeMillis() + (MINUTE * 5L)))
+            .signWith(SignatureAlgorithm.HS512, authProperties.getAuth().getTokenSecret())
             .compact();
     }
 
     @Override
     public String generateAccessToken(String refreshToken) {
-        String loginId = Jwts.parser()
+        String uuid = Jwts.parser()
             .setSigningKey(authProperties.getAuth().getTokenSecret())
             .parseClaimsJws(refreshToken)
             .getBody().getSubject();
 
-        String validToken = refreshTokenRepository.findById(loginId)
+        String loginId = refreshTokenRepository.findById(uuid)
             .orElseThrow(() -> new JwtException("refresh token does not exist"))
-            .getToken();
-
-//        if (!refreshToken.equals(validToken)) {
-//            throw new IllegalArgumentException("Invalid token");
-//        }
-
+            .getLoginId();
 
         return Jwts.builder()
             .setSubject(loginId)
-            .setIssuedAt(new Date())
-            .setExpiration(new Date(System.currentTimeMillis() + (SECOND * 20L * 2)))
-            .signWith(SignatureAlgorithm.HS256,
-                authProperties.getAuth().getTokenSecret())
+            .setExpiration(new Date(System.currentTimeMillis() + (MINUTE * 2L)))
+            .signWith(SignatureAlgorithm.HS512, authProperties.getAuth().getTokenSecret())
             .compact();
     }
 
@@ -98,12 +86,11 @@ public class TokenProviderImp implements TokenProvider {
         return false;
     }
 
-    public String getAttribute(String token) {
-        Claims claims = Jwts.parser()
-            .setSigningKey(authProperties.getAuth().getTokenSecret())
-            .parseClaimsJws(token)
-            .getBody();
-        log.info("claims = {}", claims);
-        return claims.getSubject();
+    @Override
+    public Object getAttribute(String accessToken) {
+        return Jwts.parser().setSigningKey(authProperties.getAuth().getTokenSecret())
+            .parseClaimsJws(accessToken)
+            .getBody()
+            .getSubject();
     }
 }
