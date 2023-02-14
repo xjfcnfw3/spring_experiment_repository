@@ -1,5 +1,6 @@
 package experiment.spring.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import experiment.spring.domain.member.Member;
 import experiment.spring.repository.MemberRepository;
 import experiment.spring.security.token.TokenProvider;
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -36,13 +38,22 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
-        String jwtAccessToken = resolveToken(request);
+        String jwtAccessToken = null;
+        String refreshToken = null;
+
+        if (request.getRequestURI().equals("/api/token/refresh") && request.getMethod().equals("POST")) {
+            refreshToken = resolveToken(request);
+            jwtAccessToken = tokenProvider.generateAccessToken(refreshToken);
+            log.info("jwtAccessToken={}", jwtAccessToken);
+        } else {
+            jwtAccessToken = resolveToken(request);
+        }
 
         if (StringUtils.hasText(jwtAccessToken) && tokenProvider.validateAccessToken(jwtAccessToken)) {
             Authentication authentication = getAuthentication(jwtAccessToken);
+            log.info("auth={}", authentication);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
-
         filterChain.doFilter(request,response);
     }
 

@@ -1,6 +1,7 @@
 package experiment.spring.security.token;
 
 import experiment.spring.config.security.AuthProperties;
+import experiment.spring.domain.member.Member;
 import experiment.spring.domain.token.RefreshToken;
 import experiment.spring.repository.RefreshTokenRepository;
 import experiment.spring.security.MemberDetails;
@@ -31,26 +32,24 @@ public class UUIDTokenProvider implements TokenProvider{
 
     @Override
     public String generateRefreshToken(Authentication authentication) {
-        MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
-        String loginId = memberDetails.getUsername();
+        String loginId = null;
+        log.info("auth={}", authentication);
+        if (authentication.getPrincipal() instanceof  MemberDetails) {
+            MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
+            loginId = memberDetails.getUsername();
+        } else if (authentication.getPrincipal() instanceof Member) {
+            Member member = (Member) authentication.getPrincipal();
+            loginId = member.getLoginId();
+        }
         String uuid = UUID.randomUUID().toString();
         refreshTokenRepository.save(new RefreshToken(uuid, loginId));
-        return Jwts.builder()
-            .setSubject(uuid)
-            .setIssuedAt(new Date())
-            .setExpiration(new Date(System.currentTimeMillis() + (MINUTE * 5L)))
-            .signWith(SignatureAlgorithm.HS512, authProperties.getAuth().getTokenSecret())
-            .compact();
+        return uuid;
     }
 
     @Override
     public String generateAccessToken(String refreshToken) {
-        String uuid = Jwts.parser()
-            .setSigningKey(authProperties.getAuth().getTokenSecret())
-            .parseClaimsJws(refreshToken)
-            .getBody().getSubject();
 
-        String loginId = refreshTokenRepository.findById(uuid)
+        String loginId = refreshTokenRepository.findById(refreshToken)
             .orElseThrow(() -> new JwtException("refresh token does not exist"))
             .getLoginId();
 
@@ -83,7 +82,7 @@ public class UUIDTokenProvider implements TokenProvider{
 
     @Override
     public boolean validateRefreshToken(String refreshToken) {
-        return false;
+        return refreshTokenRepository.findById(refreshToken).isPresent();
     }
 
     @Override
