@@ -17,7 +17,7 @@ public class AuthController {
 
     private final TokenProvider tokenProvider;
 
-    @PostMapping("/refresh")
+//    @PostMapping("/refresh")
     public LoginResponse refresh(Authentication authentication) {
         String refreshToken = tokenProvider.generateRefreshToken(authentication);
         String accessToken = tokenProvider.generateAccessToken(refreshToken);

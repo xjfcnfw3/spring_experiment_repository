@@ -2,8 +2,10 @@ package experiment.spring.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import experiment.spring.domain.member.Member;
+import experiment.spring.domain.member.dto.LoginResponse;
 import experiment.spring.repository.MemberRepository;
 import experiment.spring.security.token.TokenProvider;
+import io.jsonwebtoken.JwtException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -38,23 +41,38 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
-        String jwtAccessToken = null;
-        String refreshToken = null;
 
-        if (request.getRequestURI().equals("/api/token/refresh") && request.getMethod().equals("POST")) {
-            refreshToken = resolveToken(request);
-            jwtAccessToken = tokenProvider.generateAccessToken(refreshToken);
-            log.info("jwtAccessToken={}", jwtAccessToken);
-        } else {
-            jwtAccessToken = resolveToken(request);
-        }
-
-        if (StringUtils.hasText(jwtAccessToken) && tokenProvider.validateAccessToken(jwtAccessToken)) {
-            Authentication authentication = getAuthentication(jwtAccessToken);
-            log.info("auth={}", authentication);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            authenticate(request, response);
+        } catch (Exception e) {
+            log.error("Error = ", e);
         }
         filterChain.doFilter(request,response);
+    }
+
+    private void authenticate(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            String token = resolveToken(request);
+            if (StringUtils.hasText(token)) {
+                Authentication authentication = getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } catch (JwtException e) {
+            reIssueToken(request, response);
+        }
+    }
+
+    private void reIssueToken(HttpServletRequest request, HttpServletResponse response) {
+        if (request.getRequestURI().equals("/api/token/refresh") && request.getMethod().equals("POST")) {
+            String refreshToken = resolveToken(request);
+            String accessToken = tokenProvider.generateAccessToken(refreshToken);
+            Authentication authentication = getAuthentication(accessToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String reIssuedToken = tokenProvider.generateRefreshToken(authentication);
+            log.info("access={}, refresh={}", accessToken, reIssuedToken);
+            response.addHeader("refresh", reIssuedToken);
+            response.setHeader("accessToken", accessToken);
+        }
     }
 
     private Authentication getAuthentication(String token) {
