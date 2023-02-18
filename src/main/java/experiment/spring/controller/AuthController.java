@@ -17,10 +17,10 @@ public class AuthController {
 
     private final TokenProvider tokenProvider;
 
-//    @PostMapping("/refresh")
-    public LoginResponse refresh(Authentication authentication) {
+    @PostMapping("/refresh")
+    public void refresh(Authentication authentication) {
         String refreshToken = tokenProvider.generateRefreshToken(authentication);
         String accessToken = tokenProvider.generateAccessToken(refreshToken);
-        return new LoginResponse(accessToken, refreshToken);
+//        return new LoginResponse(accessToken, refreshToken);
     }
 }

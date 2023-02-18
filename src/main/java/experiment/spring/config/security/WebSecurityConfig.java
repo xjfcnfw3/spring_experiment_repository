@@ -56,6 +56,7 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtFilter jwtFilter() {
+        JwtFilter jwtFilter = new JwtFilter();
         return new JwtFilter();
     }
 
@@ -77,8 +78,8 @@ public class WebSecurityConfig {
             .authorizeRequests()
             .anyRequest().permitAll()
             .and()
-            .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }
