@@ -55,4 +55,9 @@ public class MemberController {
         log.info("detail = {}", member);
         return member;
     }
+
+    @GetMapping("test")
+    public String test(@LoginMember Member member) {
+        return "ok";
+    }
 }

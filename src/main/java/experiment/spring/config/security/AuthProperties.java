@@ -21,6 +21,24 @@ public class AuthProperties {
 
     public static class Auth {
         private String tokenSecret;
+        private String refreshHeader;
+        private String accessHeader;
+
+        public String getRefreshHeader() {
+            return refreshHeader;
+        }
+
+        public void setRefreshHeader(String refreshHeader) {
+            this.refreshHeader = refreshHeader;
+        }
+
+        public String getAccessHeader() {
+            return accessHeader;
+        }
+
+        public void setAccessHeader(String accessHeader) {
+            this.accessHeader = accessHeader;
+        }
 
         public String getTokenSecret() {
             return tokenSecret;

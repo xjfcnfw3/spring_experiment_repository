@@ -28,6 +28,7 @@ public class WebSecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final TokenProvider tokenProvider;
+    private final AuthProperties authProperties;
 
     @Bean(BeanIds.AUTHENTICATION_MANAGER)
     public AuthenticationManager authenticationManager()
@@ -51,12 +52,11 @@ public class WebSecurityConfig {
 
     @Bean
     public LoginSuccessHandler loginSuccessHandler() {
-        return new LoginSuccessHandler(tokenProvider);
+        return new LoginSuccessHandler(tokenProvider, authProperties);
     }
 
     @Bean
     public JwtFilter jwtFilter() {
-        JwtFilter jwtFilter = new JwtFilter();
         return new JwtFilter();
     }
 
@@ -78,8 +78,8 @@ public class WebSecurityConfig {
             .authorizeRequests()
             .anyRequest().permitAll()
             .and()
-            .addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }
