@@ -65,6 +65,9 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private void reIssue(HttpServletRequest request, HttpServletResponse response) {
+        if (!request.getRequestURI().equals("/api/token/refresh") || !request.getMethod().equals("POST")) {
+            return;
+        }
         String refreshToken = getRefreshToken(request);
         String accessToken = tokenProvider.generateAccessToken(refreshToken);
         Cookie cookie = getRefreshTokenCookie(refreshToken);
