@@ -1,5 +1,7 @@
 package experiment.spring.batch;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -27,5 +29,11 @@ public class SpringBachTest {
         throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
         Map<String, JobParameter> param = Map.of("name", new JobParameter("batch"));
         jobLauncher.run(job, new JobParameters(param));
+    }
+
+    @Test
+    void missParameter() {
+        assertThatThrownBy(() -> jobLauncher.run(job, new JobParameters()))
+            .isInstanceOf(JobParametersInvalidException.class);
     }
 }

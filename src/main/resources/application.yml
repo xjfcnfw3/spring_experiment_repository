@@ -26,4 +26,6 @@ spring:
         show_sql: true
     defer-datasource-initialization: true
 
-
+  batch:
+    job:
+      enabled: false
