@@ -1,5 +1,6 @@
 package experiment.spring.domain.member;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -20,6 +21,7 @@ import lombok.ToString;
 @AllArgsConstructor
 public class Member {
     @Id
+    @Column(name = "MEMBER_ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String loginId;
