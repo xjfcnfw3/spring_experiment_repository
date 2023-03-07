@@ -24,7 +24,7 @@ public class BoardService {
         return repository.save(board);
     }
 
-    public void delete(Long id) {
+    public void delete(Member member, Long id) {
         repository.deleteById(id);
     }
 
@@ -33,9 +33,9 @@ public class BoardService {
     }
 
     public void update(Member member, BoardDto boardDto, Long boardId) {
-        if (member.getId().equals(boardId)) {
+        Board board = repository.findById(boardId).orElseThrow(EntityNotFoundException::new);
+        if (member.getId().equals(board.getMember().getId())) {
             String content = boardDto.getContent();
-            Board board = repository.findById(boardId).orElseThrow(EntityNotFoundException::new);
             board.setContent(content);
             repository.save(board);
         } else {
