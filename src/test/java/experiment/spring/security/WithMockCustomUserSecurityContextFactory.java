@@ -1,8 +1,10 @@
 package experiment.spring.security;
 
 import experiment.spring.domain.member.Member;
+import experiment.spring.repository.MemberRepository;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,12 +14,16 @@ import org.springframework.security.test.context.support.WithSecurityContextFact
 
 public class WithMockCustomUserSecurityContextFactory implements WithSecurityContextFactory<WithMockCustomUser> {
 
+    @Autowired
+    private MemberRepository memberRepository;
+
     @Override
     public SecurityContext createSecurityContext(WithMockCustomUser member) {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
         grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + member.role().name()));
         Member detailsMember = getMember(member);
+        memberRepository.save(detailsMember);
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
             detailsMember, detailsMember.getPassword(), grantedAuthorities);
         context.setAuthentication(token);
