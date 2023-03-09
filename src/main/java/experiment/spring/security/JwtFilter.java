@@ -27,12 +27,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
+    public static final String AUTHORIZATION = "Authorization";
+    public static final String REFRESH_URI = "/api/token/refresh";
+    public static final String REFRESH_METHOD = "POST";
+
     @Autowired
     private TokenProvider tokenProvider;
     @Autowired
     private AuthProperties authProperties;
     @Autowired
     private MemberRepository memberRepository;
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -45,15 +50,6 @@ public class JwtFilter extends OncePerRequestFilter {
         filterChain.doFilter(request,response);
     }
 
-    private Authentication getAuthentication(String token) {
-        String loginId = (String) tokenProvider.getAttribute(token);
-        Member member = memberRepository.findByLoginId(loginId)
-            .orElseThrow(NoSuchElementException::new);
-        Collection<? extends GrantedAuthority> authorities = Collections
-            .singletonList(new SimpleGrantedAuthority(member.getRole().name()));
-        return new UsernamePasswordAuthenticationToken(member, token, authorities);
-    }
-
     private void authenticate(HttpServletRequest request, HttpServletResponse response) {
         String token = resolveToken(request);
         if (StringUtils.hasText(token)) {
@@ -64,8 +60,17 @@ public class JwtFilter extends OncePerRequestFilter {
         }
     }
 
+    private Authentication getAuthentication(String token) {
+        String loginId = (String) tokenProvider.getAttribute(token);
+        Member member = memberRepository.findByLoginId(loginId)
+            .orElseThrow(NoSuchElementException::new);
+        Collection<? extends GrantedAuthority> authorities = Collections
+            .singletonList(new SimpleGrantedAuthority(member.getRole().name()));
+        return new UsernamePasswordAuthenticationToken(member, token, authorities);
+    }
+
     private void reIssue(HttpServletRequest request, HttpServletResponse response) {
-        if (!request.getRequestURI().equals("/api/token/refresh") || !request.getMethod().equals("POST")) {
+        if (!request.getRequestURI().equals(REFRESH_URI) || !request.getMethod().equals(REFRESH_METHOD)) {
             return;
         }
         String refreshToken = getRefreshToken(request);
@@ -87,12 +92,12 @@ public class JwtFilter extends OncePerRequestFilter {
         Cookie cookie = new Cookie("refresh", refreshToken);
         cookie.setMaxAge(432000);
         cookie.setHttpOnly(true);
-        cookie.setPath("/api/token/refresh");
+        cookie.setPath(REFRESH_URI);
         return cookie;
     }
 
     private String resolveToken(HttpServletRequest request) {
-        String accessToken = request.getHeader(authProperties.getAuth().getAccessHeader());
+        String accessToken = request.getHeader(AUTHORIZATION);
         if (StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer ")) {
             return accessToken.substring(7);
         }
