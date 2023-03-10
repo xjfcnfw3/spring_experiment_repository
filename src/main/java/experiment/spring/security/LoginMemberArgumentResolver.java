@@ -1,9 +1,13 @@
 package experiment.spring.security;
 
 import experiment.spring.domain.member.Member;
+import javax.security.auth.message.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.implementation.bind.MethodDelegationBinder.ParameterBinding;
+import net.bytebuddy.implementation.bind.MethodDelegationBinder.ParameterBinding.Anonymous;
 import org.springframework.core.MethodParameter;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -17,6 +21,8 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 @RequiredArgsConstructor
 public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolver {
 
+    public static final String ANONYMOUS_USER = "anonymousUser";
+
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.getParameterType().isAssignableFrom(Member.class)
@@ -29,8 +35,15 @@ public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolve
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             log.info("authentication = {}", authentication);
+            validateUser(authentication);
             return authentication.getPrincipal();
         }
         return null;
+    }
+
+    private void validateUser(Authentication authentication) {
+        if (authentication.getPrincipal().equals(ANONYMOUS_USER)) {
+            throw new AuthorizationServiceException("permission not allowed");
+        }
     }
 }
