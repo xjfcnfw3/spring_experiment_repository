@@ -1,7 +1,8 @@
 package experiment.spring.service;
 
 import experiment.spring.domain.Boaed.Board;
-import experiment.spring.domain.Boaed.BoardDto;
+import experiment.spring.domain.Boaed.dto.BoardRequest;
+import experiment.spring.domain.Boaed.dto.BoardResponse;
 import experiment.spring.domain.member.Member;
 import experiment.spring.repository.BoardRepository;
 import javax.persistence.EntityNotFoundException;
@@ -17,7 +18,8 @@ public class BoardService {
 
     private final BoardRepository repository;
 
-    public Board save(Member member, BoardDto boardDto) {
+    public Board save(Member member, BoardRequest boardDto) {
+        log.info("member={}", member);
         Board board = boardDto.toEntity();
         board.setMember(member);
         log.info("board ={}", board);
@@ -32,7 +34,7 @@ public class BoardService {
         return repository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
-    public void update(Member member, BoardDto boardDto, Long boardId) {
+    public void update(Member member, BoardRequest boardDto, Long boardId) {
         Board board = repository.findById(boardId).orElseThrow(EntityNotFoundException::new);
         if (member.getId().equals(board.getMember().getId())) {
             String content = boardDto.getContent();

@@ -4,7 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import experiment.spring.domain.Boaed.Board;
-import experiment.spring.domain.Boaed.BoardDto;
+import experiment.spring.domain.Boaed.dto.BoardRequest;
+import experiment.spring.domain.Boaed.dto.BoardResponse;
 import experiment.spring.domain.member.Member;
 import experiment.spring.domain.member.Role;
 import experiment.spring.repository.BoardRepository;
@@ -46,10 +47,10 @@ class BoardServiceTest {
 
     @Test
     void update() {
-        BoardDto boardDto = new BoardDto("test", "this is test");
+        BoardRequest boardDto = new BoardRequest("test", "this is test");
         Board savedBoard = boardService.save(member, boardDto);
         log.info("memberId={}", member.getId());
-        BoardDto updateDto = new BoardDto("test", "this is test2");
+        BoardRequest updateDto = new BoardRequest("test", "this is test2");
         boardService.update(member, updateDto, savedBoard.getId());
 
         Board board = boardService.getBoard(savedBoard.getId());
@@ -60,7 +61,7 @@ class BoardServiceTest {
     void updateNotOwner() {
         Member notOwner = Member.builder().id(99L).build();
         Board savedBoard = saveBoard();
-        BoardDto updateDto = new BoardDto("test", "this is test2");
+        BoardRequest updateDto = new BoardRequest("test", "this is test2");
         assertThatThrownBy(() -> boardService.update(notOwner, updateDto, savedBoard.getId()))
             .isInstanceOf(AuthorizationServiceException.class);
     }
@@ -78,7 +79,7 @@ class BoardServiceTest {
         for (int i = 1; i <= 10; i++) {
             Member member = Member.builder().name("member" + i).build();
             memberRepository.save(member);
-            BoardDto boardDto = new BoardDto("hello member" + i, "This is test" + i);
+            BoardRequest boardDto = new BoardRequest("hello member" + i, "This is test" + i);
             boardService.save(member, boardDto);
         }
         List<Board> boards = boardRepository.findAll();
@@ -88,7 +89,7 @@ class BoardServiceTest {
     @Test
     void NPlusTest2() {
         for (int i = 1; i <= 10; i++) {
-            BoardDto boardDto = new BoardDto("hello member" + i, "This is test" + i);
+            BoardRequest boardDto = new BoardRequest("hello member" + i, "This is test" + i);
             boardService.save(member, boardDto);
         }
         List<Board> boards = boardRepository.findAll();
@@ -97,7 +98,7 @@ class BoardServiceTest {
 
     private Board saveBoard() {
         Member member = Member.builder().build();
-        BoardDto boardDto = new BoardDto("test", "this is test");
+        BoardRequest boardDto = new BoardRequest("test", "this is test");
         return boardService.save(member, boardDto);
     }
 }

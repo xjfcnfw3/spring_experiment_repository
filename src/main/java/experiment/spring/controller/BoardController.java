@@ -1,7 +1,8 @@
 package experiment.spring.controller;
 
 import experiment.spring.domain.Boaed.Board;
-import experiment.spring.domain.Boaed.BoardDto;
+import experiment.spring.domain.Boaed.dto.BoardRequest;
+import experiment.spring.domain.Boaed.dto.BoardResponse;
 import experiment.spring.domain.member.Member;
 import experiment.spring.security.LoginMember;
 import experiment.spring.service.BoardService;
@@ -25,10 +26,10 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER')")
     @PostMapping
-    public Board save(@RequestBody BoardDto boardDto, @LoginMember Member member) {
-        return boardService.save(member, boardDto);
+    public BoardResponse save(@RequestBody BoardRequest boardDto, @LoginMember Member member) {
+        return BoardResponse.of(boardService.save(member, boardDto));
     }
 
     @GetMapping("/{id}")
@@ -36,15 +37,13 @@ public class BoardController {
         return boardService.getBoard(id);
     }
 
-    @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/{id}")
-    public void deleteBoard(@PathVariable Long id) {
-        boardService.delete(id);
+    public void deleteBoard(@PathVariable Long id, @LoginMember Member member) {
+        boardService.delete(member, id);
     }
 
-    @PreAuthorize("hasRole('USER')")
     @PutMapping("/{id}")
-    public void updateBoard(@LoginMember Member member, @RequestBody BoardDto boardDto, @PathVariable Long id) {
+    public void updateBoard(@LoginMember Member member, @RequestBody BoardRequest boardDto, @PathVariable Long id) {
         boardService.update(member, boardDto, id);
     }
 }

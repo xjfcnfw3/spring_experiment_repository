@@ -1,5 +1,6 @@
-package experiment.spring.domain.Boaed;
+package experiment.spring.domain.Boaed.dto;
 
+import experiment.spring.domain.Boaed.Board;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BoardDto {
+public class BoardRequest {
     private String title;
     private String content;
 

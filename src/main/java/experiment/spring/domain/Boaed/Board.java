@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 @Builder
 @Getter
@@ -28,12 +29,14 @@ public class Board {
     private String title;
     private String content;
 
+    @ColumnDefault("0")
+    private Long views;
+
     @ManyToOne
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
-    @Override
-    public String toString() {
-        return "[id=" + id + ", title=" + title + ", content=" + content + ", member=" + "]";
+    public void increaseView() {
+        this.views++;
     }
 }
