@@ -1,7 +1,6 @@
 package experiment.spring.domain.Boaed;
 
 import experiment.spring.domain.member.Member;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -13,7 +12,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 
 @Builder
 @Getter
@@ -29,7 +27,6 @@ public class Board {
     private String title;
     private String content;
 
-    @ColumnDefault("0")
     private Long views;
 
     @ManyToOne
