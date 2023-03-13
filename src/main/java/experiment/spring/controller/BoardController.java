@@ -33,8 +33,8 @@ public class BoardController {
     }
 
     @GetMapping("/{id}")
-    public Board getBoard(@PathVariable Long id) {
-        return boardService.getBoard(id);
+    public BoardResponse getBoard(@PathVariable Long id) {
+        return BoardResponse.of(boardService.getBoard(id));
     }
 
     @DeleteMapping("/{id}")
