@@ -26,7 +26,12 @@ public class BoardService {
 
     @Transactional
     public void delete(Member member, Long id) {
-        repository.deleteById(id);
+        Board board = repository.findById(id).orElseThrow(EntityNotFoundException::new);
+        if (member.getId().equals(board.getMember().getId())) {
+            repository.delete(board);
+        } else {
+            throw new AuthorizationServiceException("You are not Owner!");
+        }
     }
 
     @Transactional
