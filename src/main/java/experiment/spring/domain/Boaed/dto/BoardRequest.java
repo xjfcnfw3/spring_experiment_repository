@@ -15,6 +15,10 @@ public class BoardRequest {
     private String title;
     private String content;
 
+    public BoardRequest(String content) {
+        this.content = content;
+    }
+
     public Board toEntity() {
         return Board.builder()
             .title(title)
