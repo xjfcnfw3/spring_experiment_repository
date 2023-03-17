@@ -16,7 +16,6 @@ public class MemberDetailsService implements UserDetailsService {
         this.memberRepository = memberRepository;
     }
 
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Member member = memberRepository.findByLoginId(username)

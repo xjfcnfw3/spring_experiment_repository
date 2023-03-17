@@ -1,9 +1,7 @@
 package experiment.spring.security.token;
 
 import experiment.spring.config.security.AuthProperties;
-import experiment.spring.domain.member.Member;
 import experiment.spring.domain.token.RefreshToken;
-import experiment.spring.repository.MemberRepository;
 import experiment.spring.repository.RefreshTokenRepository;
 import experiment.spring.security.MemberDetails;
 import io.jsonwebtoken.Claims;
@@ -16,11 +14,9 @@ import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import java.util.Date;
 import java.util.UUID;
-import javax.security.auth.message.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Component;
 
 @Slf4j
 //@Component
