@@ -28,12 +28,13 @@ public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolve
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-        NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+        NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             log.info("authentication = {}", authentication);
             validateUser(authentication);
-            return authentication.getPrincipal();
+            MemberDetails principal = (MemberDetails) authentication.getPrincipal();
+            return principal.getMember();
         }
         return null;
     }
