@@ -1,17 +1,12 @@
 package experiment.spring.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import experiment.spring.config.security.AuthProperties;
-import experiment.spring.domain.member.dto.LoginResponse;
 import experiment.spring.security.token.TokenProvider;
-import java.io.IOException;
-import javax.security.auth.message.AuthException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 

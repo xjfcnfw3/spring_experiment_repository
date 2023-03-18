@@ -35,6 +35,8 @@ public class JwtFilter extends OncePerRequestFilter {
     private TokenProvider tokenProvider;
     @Autowired
     private AuthProperties authProperties;
+
+    // DetailService로 구한다.
     @Autowired
     private MemberRepository memberRepository;
 
