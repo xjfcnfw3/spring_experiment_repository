@@ -1,10 +1,9 @@
-package experiment.spring.security.token;
+package experiment.spring.security;
 
 import experiment.spring.config.security.AuthProperties;
 import experiment.spring.domain.member.Member;
 import experiment.spring.domain.token.RefreshToken;
 import experiment.spring.repository.RefreshTokenRepository;
-import experiment.spring.security.MemberDetails;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
